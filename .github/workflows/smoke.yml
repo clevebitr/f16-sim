@@ -1,0 +1,20 @@
+name: smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: 运行冒烟测试
+        run: sh tools/smoke-all.sh
+      - name: 校验 Cloudflare Pages 构建产物
+        run: sh tools/build-pages.sh

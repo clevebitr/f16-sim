@@ -1,0 +1,17 @@
+# 静态资源缓存策略（Cloudflare Pages 会读取 dist/_headers）
+# 注意：本项目 js 之间用无版本号的 ES module 互相 import，
+# 因此不设置长期强缓存，避免 HTML 与 JS 版本错配。
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Cache-Control: public, max-age=0, must-revalidate
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/css/*
+  Cache-Control: public, max-age=600
+
+/js/*
+  Cache-Control: public, max-age=600

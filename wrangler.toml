@@ -1,0 +1,8 @@
+# Cloudflare Pages 配置
+# 通过 Git 集成部署时，构建命令与输出目录在控制台里填（见 README「部署」）：
+#   构建命令: sh tools/build-pages.sh
+#   输出目录: dist
+# 下面的字段让 `npx wrangler pages deploy` 也能直接直传。
+name = "f16-sim"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-01-01"

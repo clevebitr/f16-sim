@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#030705" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="description" content="F-16C Viper 战术仿真 · 单色 CRT 座舱 UI · 雷达/导弹/反跟踪/姿态控制数值仿真" />
+<title>F-16C VIPER · TACTICAL SIM</title>
+<link rel="stylesheet" href="css/theme.css" />
+<link rel="stylesheet" href="css/components.css" />
+<link rel="stylesheet" href="css/layout.css" />
+</head>
+<body data-screen="boot">
+
+<!-- ══════════════════════ CRT 覆盖层 ══════════════════════ -->
+<div class="crt-overlay" aria-hidden="true">
+  <div class="crt-scanlines"></div>
+  <div class="crt-vignette"></div>
+  <div class="crt-flicker"></div>
+  <div class="crt-grain"></div>
+</div>
+
+<!-- ══════════════════════ 开机 ══════════════════════ -->
+<section id="boot" class="screen screen-boot">
+  <div class="boot-box">
+    <pre class="boot-logo">  ___ ___    _  _      ___ 
+ | __| _ \  | || |    / __|
+ | _||   /  | __ |   | (__ 
+ |_| |_|_\  |_||_|    \___|</pre>
+    <div class="boot-title">F-16C BLOCK 50 · FLIGHT CONTROL COMPUTER</div>
+    <div class="boot-lines" id="boot-lines"></div>
+    <div class="boot-bar"><i id="boot-bar"></i></div>
+  </div>
+</section>
+
+<!-- ══════════════════════ 主菜单 ══════════════════════ -->
+<section id="menu" class="screen screen-menu">
+  <canvas id="menu-canvas" class="menu-bg"></canvas>
+
+  <header class="menu-head">
+    <div class="menu-brand">
+      <div class="logo-line">
+        <span class="logo-main">F-16C</span>
+        <span class="logo-sub">FIGHTING FALCON</span>
+        <span class="logo-blk">BLOCK 50</span>
+      </div>
+      <div class="menu-tagline">TACTICAL AIR COMBAT SIMULATOR · 数值仿真版</div>
+    </div>
+    <div class="menu-status">
+      <div><b>SYS</b> NOMINAL</div>
+      <div><b>FC</b> <span id="menu-clock">00:00:00</span></div>
+    </div>
+  </header>
+
+  <div class="menu-body">
+    <nav class="menu-nav">
+      <button class="menu-item is-active" data-menu="start"><span class="mk">▸</span><span class="lb">开始任务</span><span class="en">START MISSION</span></button>
+      <button class="menu-item" data-menu="tutorial"><span class="mk">▸</span><span class="lb">新手教程</span><span class="en">TUTORIAL</span></button>
+      <button class="menu-item" data-menu="scenarios"><span class="mk">▸</span><span class="lb">任务场景</span><span class="en">SCENARIOS</span></button>
+      <button class="menu-item" data-menu="data"><span class="mk">▸</span><span class="lb">机型资料</span><span class="en">AIRCRAFT DATA</span></button>
+      <button class="menu-item" data-menu="controls"><span class="mk">▸</span><span class="lb">操作说明</span><span class="en">CONTROLS</span></button>
+      <button class="menu-item" data-menu="settings"><span class="mk">▸</span><span class="lb">系统设置</span><span class="en">SETTINGS</span></button>
+    </nav>
+
+    <div class="menu-stage">
+      <!-- 场景 -->
+      <div class="stage-pane" data-pane="start">
+        <div class="pane-head">▍任务简报</div>
+        <p class="pane-text">
+          敌方编队正沿 BRAVO 走廊南下，已确认 <b>Su-27</b> 与 <b>MiG-29</b> 各一架。
+          <b>跑道 09 起飞</b> → 前出 CAP BRAVO 建立制空 → <b>返场 ILS 09 着陆</b>，掩护打击包。
+        </p>
+        <ul class="pane-list">
+          <li><b>起飞</b>RWY 09 · 塔台 257.800 取起飞许可</li>
+          <li><b>目标</b>击落 2 架敌方战斗机</li>
+          <li><b>返场</b>ILS 09 · 110.30 · TACAN 96X · 决断高 200 ft</li>
+          <li><b>威胁</b>S-300PS 雷达阵地 (东北 88 km)</li>
+          <li><b>挂载</b>4× AIM-120C · 2× AIM-9M · 511 发 20mm</li>
+        </ul>
+        <button class="btn btn-primary" id="btn-launch">▶ 执行任务 &nbsp;LAUNCH</button>
+      </div>
+
+      <div class="stage-pane is-hidden" data-pane="tutorial">
+        <div class="pane-head">▍新手教程 · 从入门到精通</div>
+        <p class="pane-text">
+          六节课程按真实飞行训练顺序编排：<b>接触飞行 → 能量机动 → 雷达操作 → 超视距交战 → 近距格斗 → 防御机动</b>。
+          每一步都有实时判定，做到就自动进入下一步；随时可以「跳过本步」。
+        </p>
+        <div class="lesson-grid" id="lesson-grid"></div>
+        <div class="tut-actions">
+          <button class="btn btn-primary" id="btn-tutorial-start">▶ 开始课程 &nbsp;START</button>
+          <button class="btn" id="btn-practice">自由练习场 <em>PRACTICE</em></button>
+        </div>
+        <div class="tut-note">进度自动保存 · 通过课程会解锁「精通」标记</div>
+      </div>
+
+      <div class="stage-pane is-hidden" data-pane="scenarios">
+        <div class="pane-head">▍任务场景</div>
+        <div class="scenario-grid" id="scenario-grid">
+          <button class="scenario is-active" data-scenario="CAP-BRAVO">
+            <span class="sc-id">01</span>
+            <span class="sc-name">CAP BRAVO</span>
+            <span class="sc-desc">跑道起飞 → 空优 → 返场着陆 · 推荐</span>
+          </button>
+          <button class="scenario" data-scenario="DUEL">
+            <span class="sc-id">02</span>
+            <span class="sc-name">1V1 DUEL</span>
+            <span class="sc-desc">单架 MiG-29 · 36 km 迎头 · 起降全流程</span>
+          </button>
+          <button class="scenario" data-scenario="BVR">
+            <span class="sc-id">03</span>
+            <span class="sc-name">BVR ADVANCED</span>
+            <span class="sc-desc">双 Su-27 · 超视距 · 起降全流程</span>
+          </button>
+          <button class="scenario" data-scenario="TRAINING">
+            <span class="sc-id">04</span>
+            <span class="sc-name">PRACTICE RANGE</span>
+            <span class="sc-desc">两架不还击靶机 · 自由练习场</span>
+          </button>
+          <button class="scenario" data-scenario="AIRFIELD">
+            <span class="sc-id">05</span>
+            <span class="sc-name">AIRFIELD OPS</span>
+            <span class="sc-desc">冷舱起动 · 滑行起飞 · ILS 着陆 · 膝板与无线电</span>
+          </button>
+        </div>
+        <div class="start-mode">
+          <span class="sm-label">起始方式</span>
+          <div class="sm-opts" id="start-mode-opts">
+            <button data-start="runway" class="is-active">跑道热机<em>TAKEOFF</em></button>
+            <button data-start="cold">冷舱起动<em>COLD START</em></button>
+            <button data-start="air">空中开始<em>AIR START</em></button>
+          </div>
+          <small id="start-mode-hint">从跑道起飞 → 交战 → 返场着陆，完整起降流程</small>
+        </div>
+        <button class="btn btn-primary" id="btn-launch-2">▶ 执行任务 &nbsp;LAUNCH</button>
+      </div>
+
+      <div class="stage-pane is-hidden" data-pane="data">
+        <div class="pane-head">▍F-16C Block 50 资料</div>
+        <div class="data-scroll">
+          <table class="spec-table" id="spec-table"></table>
+          <div class="pane-sub">参考来源</div>
+          <ul class="src-list" id="src-list"></ul>
+        </div>
+      </div>
+
+      <div class="stage-pane is-hidden" data-pane="controls">
+        <div class="pane-head">▍操作说明</div>
+        <div class="ctl-cols" id="ctl-cols"></div>
+      </div>
+
+      <div class="stage-pane is-hidden" data-pane="settings">
+        <div class="pane-head">▍系统设置</div>
+        <div class="set-list" id="set-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="menu-foot">
+    <span>© SIMULATION BUILD 1.0 · 仅用于飞行系统与 UI 数值仿真演示</span>
+    <span class="blink">▮</span>
+  </footer>
+</section>
+
+<!-- ══════════════════════ 座舱 ══════════════════════ -->
+<section id="game" class="screen screen-game">
+
+  <header class="topbar">
+    <div class="tb-brand">
+      <span class="tb-ac">F-16C</span>
+      <span class="tb-blk">BLK50</span>
+    </div>
+    <div class="tb-mission">MISSION <b id="mission-name">CAP BRAVO</b></div>
+    <div class="tb-clock">T+<span id="mission-clock">00:00</span></div>
+    <div class="tb-phase" id="tb-phase"></div>
+    <div class="tb-obj" id="tb-obj"></div>
+    <div class="tb-warn" id="warnbar"></div>
+    <button class="tb-btn" id="btn-cockpit" title="座舱面板 (J)">座舱</button>
+    <button class="tb-btn" id="btn-rookie" title="菜鸟模式 (K)">新手</button>
+    <button class="tb-btn" id="btn-map-top" title="战场态势图 (M)">地图</button>
+    <button class="tb-btn" id="btn-pause" aria-label="暂停">❚❚</button>
+  </header>
+
+  <nav class="mobile-tabs" id="mobile-tabs">
+    <button class="is-active" data-tab="radar">RDR</button>
+    <button data-tab="hud">HUD</button>
+    <button data-tab="sys">SYS</button>
+    <button data-tab="map" id="tab-map">MAP</button>
+  </nav>
+
+  <main class="deck">
+
+    <!-- ─────── 雷达 ─────── -->
+    <section class="panel panel-radar" data-panel="radar">
+      <div class="panel-head">
+        <span class="tag">RDR</span>
+        <span class="ttl">AN/APG-68(V)5</span>
+        <span class="hd-val" id="rdr-status">SEARCH</span>
+      </div>
+      <div class="scope-wrap">
+        <canvas id="radar-canvas"></canvas>
+        <div class="scope-corner tl" id="rdr-scale">40 NM</div>
+        <div class="scope-corner br" id="rdr-el">EL +0.0</div>
+      </div>
+      <div class="kv-row">
+        <div class="kv"><b>MODE</b><span id="rdr-mode">RWS</span></div>
+        <div class="kv"><b>AZ</b><span id="rdr-az">±60°</span></div>
+        <div class="kv"><b>BARS</b><span id="rdr-bars">4</span></div>
+        <div class="kv"><b>RNG</b><span id="rdr-range">40</span></div>
+      </div>
+      <div class="tracklist" id="tracklist"></div>
+    </section>
+
+    <!-- ─────── HUD ─────── -->
+    <section class="panel panel-hud" data-panel="hud">
+      <div class="panel-head">
+        <span class="tag">HUD</span>
+        <span class="ttl">FLIGHT / ATTITUDE</span>
+        <span class="hd-val" id="hud-ap">AP OFF</span>
+      </div>
+      <div class="hud-wrap">
+        <canvas id="hud-canvas"></canvas>
+        <div class="hud-corner tl" id="hud-mode">NAV</div>
+        <div class="hud-corner tr" id="hud-weapon">AIM-120C</div>
+      </div>
+      <div class="readouts">
+        <div class="ro"><b>IAS</b><span id="ro-ias">000</span><i>KT</i></div>
+        <div class="ro"><b>ALT</b><span id="ro-alt">00000</span><i>FT</i></div>
+        <div class="ro"><b>M</b><span id="ro-mach">0.00</span><i></i></div>
+        <div class="ro"><b>G</b><span id="ro-g">1.0</span><i>G</i></div>
+        <div class="ro"><b>AOA</b><span id="ro-aoa">2.0</span><i>°</i></div>
+        <div class="ro"><b>V/S</b><span id="ro-vvi">+0000</span><i>FPM</i></div>
+      </div>
+      <div class="barstrip">
+        <div class="bar-item">
+          <b>THR</b>
+          <div class="bar"><i id="bar-thr"></i><span class="ab-mark"></span></div>
+          <em id="val-thr">60%</em>
+        </div>
+        <div class="bar-item">
+          <b>FUEL</b>
+          <div class="bar warn" ><i id="bar-fuel"></i></div>
+          <em id="val-fuel">3160</em>
+        </div>
+        <div class="bar-item">
+          <b>RPM</b>
+          <div class="bar"><i id="bar-rpm"></i></div>
+          <em id="val-rpm">62%</em>
+        </div>
+        <div class="bar-item">
+          <b>EGT</b>
+          <div class="bar"><i id="bar-egt"></i></div>
+          <em id="val-egt">480</em>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────── 系统 ─────── -->
+    <section class="panel panel-sys" data-panel="sys">
+
+      <div class="subpanel">
+        <div class="panel-head">
+          <span class="tag">RWR</span>
+          <span class="ttl">AN/ALR-69</span>
+          <span class="hd-val" id="rwr-status">QUIET</span>
+        </div>
+        <div class="rwr-wrap"><canvas id="rwr-canvas"></canvas></div>
+        <div class="threat-list" id="threat-list"></div>
+      </div>
+
+      <div class="subpanel">
+        <div class="panel-head">
+          <span class="tag">SMS</span>
+          <span class="ttl">STORES</span>
+          <span class="hd-val" id="sms-arm">ARM</span>
+        </div>
+        <div class="sms-body">
+          <div class="sms-map" id="sms-map"></div>
+          <div class="sms-info">
+            <div class="sms-name" id="sms-name">AIM-120C AMRAAM</div>
+            <div class="sms-type" id="sms-type">中距主动雷达弹</div>
+            <div class="sms-grid">
+              <div><b>QTY</b><span id="sms-qty">4</span></div>
+              <div><b>RMAX</b><span id="sms-rmax">--</span></div>
+              <div><b>RMIN</b><span id="sms-rmin">--</span></div>
+              <div><b>Pk</b><span id="sms-pk">--</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="sms-actions">
+          <button class="mini" data-weapon="AIM-120C">120</button>
+          <button class="mini" data-weapon="AIM-9M">9M</button>
+          <button class="mini" data-weapon="GUN">GUN</button>
+        </div>
+      </div>
+
+      <div class="subpanel">
+        <div class="panel-head">
+          <span class="tag">CSO</span>
+          <span class="ttl">COUNTER-TRACK</span>
+          <span class="hd-val" id="cso-status">NORM</span>
+        </div>
+        <div class="cso-body">
+          <div class="cm-row">
+            <div class="cm"><b>CHAFF</b><span id="cm-chaff">60</span><div class="bar"><i id="bar-chaff"></i></div></div>
+            <div class="cm"><b>FLARE</b><span id="cm-flare">60</span><div class="bar"><i id="bar-flare"></i></div></div>
+          </div>
+          <div class="cso-line"><b>ECM</b><span id="ecm-mode">OFF</span></div>
+          <div class="cso-line"><b>PGM</b><span id="cm-program">P4 · 混合</span></div>
+          <div class="tips" id="tips"></div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ─────── 底部：无线电 + 控制台 ─────── -->
+  <div class="bottom-ui" id="bottom-ui">
+  <div class="radio-bar" id="radio-bar">
+    <div class="rb-main">
+      <span class="rb-tag">COM1</span>
+      <button class="rb-freq" id="rb-freq" title="点击微调频率（[ / ]）">257.800</button>
+      <span class="rb-station" id="rb-station">TOWER</span>
+      <span class="rb-air" id="rb-air">UHF</span>
+    </div>
+    <div class="rb-presets" id="rb-presets"></div>
+    <div class="rb-talk">
+      <span class="rb-avail" id="rb-avail"></span>
+      <button class="rb-say" id="rb-say">发话 <em>\</em></button>
+    </div>
+  </div>
+
+  <footer class="console">
+    <!-- 教程条（仅教程模式显示） -->
+    <div class="con-tut is-hidden" id="tut-strip">
+      <div class="tut-head">
+        <span class="tut-no" id="tut-no">LESSON 01</span>
+        <span class="tut-name" id="tut-name">基础飞行</span>
+        <span class="tut-counter" id="tut-counter">1 / 5</span>
+        <div class="tut-dots" id="tut-dots"></div>
+        <button class="tut-x" id="tut-exit" title="退出教程">✕</button>
+      </div>
+      <div class="tut-body">
+        <div class="tut-title" id="tut-title">推油门</div>
+        <div class="tut-text" id="tut-text">把油门推到军用推力以上。</div>
+        <div class="tut-hint" id="tut-hint"></div>
+      </div>
+      <div class="tut-foot">
+        <div class="tut-hold"><i id="tut-hold"></i></div>
+        <button class="mini" id="tut-skip">跳过本步 ▸</button>
+      </div>
+    </div>
+
+    <div class="console-row">
+      <div class="con-left">
+        <div class="throttle" id="throttle">
+          <div class="thr-track" id="thr-track">
+            <i class="thr-fill" id="thr-fill"></i>
+            <i class="thr-detent top" style="bottom:96%"><span>MIL</span></i>
+            <i class="thr-detent" style="bottom:2%"><span>IDLE</span></i>
+            <i class="thr-knob" id="thr-knob"></i>
+          </div>
+          <div class="thr-label">
+            <span>THR</span>
+            <b id="thr-read">60</b>
+            <em id="thr-ab">AB</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="con-mid">
+        <div class="stick-block">
+          <div class="stick" id="stick">
+            <div class="stick-rings"></div>
+            <div class="stick-cross"></div>
+            <div class="stick-knob" id="stick-knob"></div>
+            <span class="stick-g" id="stick-g">1.0G</span>
+            <span class="stick-n">PITCH</span><span class="stick-r">ROLL</span>
+          </div>
+          <div class="stick-tele" id="stick-tele">P +0.00 · R +0.00</div>
+        </div>
+        <div class="fire-cluster">
+          <button class="btn-fire" id="btn-fire"><span>FIRE</span><i class="fire-cd" id="fire-cd"></i></button>
+          <button class="btn-lock" id="btn-lock">LOCK</button>
+          <div class="quick-row">
+            <button class="mini" id="btn-ab">AB</button>
+            <button class="mini" id="btn-brake">BRK</button>
+            <button class="mini" id="btn-ap">AP</button>
+          </div>
+        </div>
+        <div class="con-map">
+          <canvas id="minimap-canvas"></canvas>
+          <button class="map-open" id="btn-map">MAP <em>M</em></button>
+        </div>
+      </div>
+
+      <div class="con-right">
+        <div class="cm-cluster">
+          <button class="cm-btn" id="btn-chaff"><b>CHF</b><span>60</span></button>
+          <button class="cm-btn" id="btn-flare"><b>FLR</b><span>60</span></button>
+          <button class="cm-btn" id="btn-ecm"><b>ECM</b><span>OFF</span></button>
+        </div>
+        <div class="wpn-cluster" id="wpn-cluster"></div>
+      </div>
+    </div>
+  </footer>
+  </div>
+
+  <!-- 情境提示 + 消息 / 事件 -->
+  <div class="msglog" id="msglog">
+    <div class="coach-row" id="coach-row"></div>
+    <div class="msg-list subs" id="msg-list"></div>
+  </div>
+
+  <!-- ═══════════ 座舱分屏面板 ═══════════ -->
+  <div class="ck-overlay is-hidden" id="ck-overlay"></div>
+
+  <!-- ═══════════ 战场态势图（游戏 UI） ═══════════ -->
+  <div class="map-overlay is-hidden" id="map-overlay">
+    <div class="map-head">
+      <div class="map-title">▍战场态势图<span>TACTICAL SITUATION</span></div>
+      <div class="map-tools">
+        <button class="mini" id="map-zoom-out">−</button>
+        <button class="mini" id="map-zoom-in">+</button>
+        <button class="mini is-active" id="map-center">跟随机头</button>
+        <button class="mini" id="map-north">正北</button>
+        <button class="mini" id="map-grid">网格</button>
+        <button class="mini" id="map-close">关闭 ✕</button>
+      </div>
+    </div>
+    <div class="map-wrap">
+      <div class="map-canvas-box"><canvas id="map-canvas"></canvas></div>
+      <aside class="map-side">
+        <div class="map-side-head">接触列表 <span>CONTACTS</span></div>
+        <div class="map-side-list" id="map-side-list"></div>
+        <div class="map-side-head" style="margin-top:8px">本机 <span>OWNSHIP</span></div>
+        <div class="map-own" id="map-own"></div>
+      </aside>
+    </div>
+    <div class="map-foot">
+      <span>拖动 = 旋转视角 · 滚轮 / 双指 = 缩放 · 右键 = 复位</span>
+      <span id="map-hint">—</span>
+    </div>
+  </div>
+
+  <!-- 暂停菜单 -->
+  <div class="pause-overlay is-hidden" id="pause">
+    <div class="pause-box">
+      <div class="pause-head">❚❚ 任务暂停 <span>PAUSED</span></div>
+      <div class="pause-clock" id="pause-clock">T+00:00</div>
+      <div class="pause-btns">
+        <button class="btn" data-pause="resume">继续任务 <em>RESUME</em></button>
+        <button class="btn" data-pause="controls">操作说明 <em>CONTROLS</em></button>
+        <button class="btn" data-pause="settings">系统设置 <em>SETTINGS</em></button>
+        <button class="btn" data-pause="restart">重新开始 <em>RESTART</em></button>
+        <button class="btn danger" data-pause="menu">返回主菜单 <em>MAIN MENU</em></button>
+      </div>
+      <div class="pause-tip">按 <kbd>Esc</kbd> 或 <kbd>P</kbd> 继续</div>
+      <div class="pause-pane is-hidden" id="pause-pane"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ 战果 ══════════════════════ -->
+<section id="debrief" class="screen screen-debrief">
+  <div class="db-box">
+    <div class="db-head">
+      <div class="db-verdict" id="db-verdict">MISSION FAILED</div>
+      <div class="db-reason" id="db-reason">—</div>
+    </div>
+    <table class="db-table" id="db-table"></table>
+    <div class="db-btns">
+      <button class="btn" id="db-retry">重试任务 <em>RETRY</em></button>
+      <button class="btn" id="db-menu">返回主菜单 <em>MAIN MENU</em></button>
+    </div>
+  </div>
+</section>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
