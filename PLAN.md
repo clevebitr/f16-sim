@@ -21,5 +21,5 @@ auto-breakpoint: false
 
 ## Current
 
-goal: 飞控/拟真、起降、无线电、字幕、座舱边缘 UI 全部落地并通过测试
-breakpoint: 五项已完成，6 个 smoke 全绿；如需继续可做座舱真机截图校对
+goal: 已上 GitHub，待用户在 CF 控制台 Connect Git
+breakpoint: 等 CF Pages 首次构建，如需我改构建/缓存再来

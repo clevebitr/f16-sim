@@ -33,3 +33,11 @@ World 新增 startMode（cold/runway/air）。游戏界面默认传 runway：飞
 ## 2026-11-03 — 地面阶段敌机不交战 + 无线电接线
 
 玩家没离地时敌机不进 ENGAGE（Bandit.update 里加 playerAirborne 条件），否则新手在跑道上读检查单的 3 分钟里会被 Su-27 打成 92% 损伤。起飞后立即恢复交战。无线电：Radio 构造时调用 _updateStation（COM1 默认 257.800=TOWER，之前 station 为 null，塔台请求全部返回"无管制单位"）；World 每帧把 radio.messages 的新 id 桥接成 kind=atc/pilot/atis 的 log，主字幕/音频/战果都读得到。primeRequest 按阶段自动挑请求（地面 lineup→takeoff，空中 land）。
+
+## 2026-11-04 — 发布到 GitHub + Cloudflare Pages 的构建约定
+
+仓库: https://github.com/clevebitr/f16-sim (public, main)。
+站点保持纯静态、无打包器；Cloudflare Pages 用 `sh tools/build-pages.sh` 把 index.html/css/js/_headers 收进 dist/（输出目录 dist），所以 tools/、README、PLAN 不会上线。
+js 模块间是无版本号的 ES module import，因此 _headers 只给 max-age=600，不能上长期 immutable 缓存，否则更新后 HTML 会引到旧模块。
+CI 走 tools/smoke-all.sh（6 个 smoke，同一入口本地/CI 复用），GitHub Actions 16s 跑完。
+wrangler.toml 里写了 pages_build_output_dir=dist，让 `npx wrangler pages deploy` 直传也能用；但 Termux/Android 上不装 wrangler（workerd 是 glibc 二进制，跑不起来）。
