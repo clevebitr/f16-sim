@@ -1,5 +1,7 @@
 # F-16C VIPER · TACTICAL SIM
 
+[![smoke](https://github.com/clevebitr/f16-sim/actions/workflows/smoke.yml/badge.svg)](https://github.com/clevebitr/f16-sim/actions/workflows/smoke.yml)
+
 单色磷光绿 CRT 风格的 **F-16C Block 50 战斗机座舱 UI + 基础数值仿真** 网页。
 参考《战争雷霆》的数据密集驾驶舱呈现方式，纯前端、无构建步骤、无外部依赖。
 
